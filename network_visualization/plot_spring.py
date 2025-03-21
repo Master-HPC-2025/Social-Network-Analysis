@@ -4,10 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io
 
-
-G1 = nx.read_edgelist
-
-
 for file in os.scandir("networks"): # .venv in root dir
     # load the mtx file
     matrix = scipy.io.mmread(file.path)
@@ -19,6 +15,6 @@ for file in os.scandir("networks"): # .venv in root dir
     print(file.name)
     fig=plt.figure(figsize=(8,8))
     nx.draw_spring(G, node_size=40)
-    plt.show()
+    plt.savefig(f'spring_{file.name}.png')
     
     print(end="\n\n")
