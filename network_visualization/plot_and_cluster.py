@@ -23,6 +23,7 @@ def read_matrix_market_graph(file_path):
 def visualize_network(G, file, layout_type="spring"):
     """Clusters the network and visualizes it with distinct colors"""
     
+    # Clustering (grouping the nodes into comunities)
     communities = list(nx_comm.greedy_modularity_communities(G))
     color_map = {}
     for i, community in enumerate(communities):
@@ -49,7 +50,14 @@ def visualize_network(G, file, layout_type="spring"):
     plt.suptitle(f"{file.name} - {layout_type.capitalize()} Layout", fontsize=14, fontweight="bold")
     
     # plt.show()
-    plt.savefig(f"{file.name}-{layout_type.capitalize()} Layout.png")
+
+    # Save the plots in Plots/ file.name
+    # if this folder does not exists then it creates it
+    directory = f"Plots/{file.name}"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+ 
+    plt.savefig(f"{directory}/{file.name}-{layout_type.capitalize()} Layout.png")
 
 
 for file in os.scandir("networks"): # .venv in root dir
