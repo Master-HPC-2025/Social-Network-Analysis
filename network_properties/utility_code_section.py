@@ -1,5 +1,5 @@
-## Left the code here in case something with the notebook goes wrong
-
+#---TODO: add your functions that you'll use in the notebook repeatedly, if any
+  
 def degree_summary_and_distribution(G: nx.Graph):
     # Degree of a Node: The number of edges connected to a node.
     # Interpretation: A node's degree represents how many friends a person has on facebook.
@@ -16,13 +16,21 @@ def degree_summary_and_distribution(G: nx.Graph):
     print(f"Max Degree: {max_degree}")
     print(f"Average Degree: {avg_degree}")
 
-    # plot the degree distribution
-    degrees = [d for n, d in G.degree()]
-    plt.figure()
-    plt.hist(degrees, bins=range(1, max(degrees)+2), edgecolor='black', linewidth=0.2)
-    plt.title("Degree Distribution")
+    # count how many times each degree appears
+    degree_count = collections.Counter(degrees)
+    # sort the info and have separate lists
+    degree_values, node_counts = zip(*sorted(degree_count.items()))
+
+    total = sum(node_counts)
+    node_counts = [y / total for y in node_counts]
+
+    # plot as a dot graph
+    plt.figure(figsize=(7, 5))
+    plt.plot(degree_values, node_counts, 'o', color='blue')
+    plt.title("Degree Distribution (Dot Plot)")
     plt.xlabel("Degree")
-    plt.ylabel("Frequency")
+    plt.ylabel("Number of Nodes")
+    plt.grid(True)
     plt.show()
 
 
@@ -68,19 +76,36 @@ def clustering_coefficient_and_distribution_plot(G: nx.Graph):
     print(f"Edge Density: {edge_density}")
     print(f"Clustering Coefficient is {"high" if avg_clustering > edge_density else "low"} compared to the edge density.")
 
-    # plot the custering coefficient distribution
-    clustering_coeffs = list(nx.clustering(G).values())
-    plt.figure()
-    plt.hist(clustering_coeffs, bins="auto", edgecolor='black', linewidth=0.2)
-    plt.title("Clustering Coefficient Distribution")
-    plt.xlabel("Clustering Coefficient")
-    plt.ylabel("Frequency")
+    # plot clustering coefficient probability per degree
+    degree_per_node = dict(G.degree())
+    clustering_per_node = nx.clustering(G)
+
+    # group clustering coefficients by degree
+    clustering_by_degree = {}
+    for node in G.nodes():
+        k = degree_per_node[node]
+        c = clustering_per_node[node]
+        # if key already exists, make no change, else give a default
+        clustering_by_degree.setdefault(k, [])
+        clustering_by_degree[k].append(c)
+
+    # compute average clustering coefficient per degree
+    sorted_degrees = sorted(clustering_by_degree)
+    avg_clustering_values_per_degree = [np.mean(clustering_by_degree[degree]) for degree in sorted_degrees]
+
+    # Plot in log-log scale
+    plt.figure(figsize=(6, 5))
+    plt.scatter(sorted_degrees, avg_clustering_values_per_degree, color='red')
+    plt.xlabel('Degree $k$')
+    plt.ylabel('Clustering Coefficient $C(k)$')
+    plt.title('Clustering Coefficient vs Degree')
+    plt.grid(True)
     plt.show()
 
 
 def betweenness_centrality_distribution(G: nx.Graph):
     # Betweenness Centrality: measures how often a node appears on shortest paths between other nodes.
-    # Interpretation: Nodes with high betweenness act like bridges or bottlenecks in the network.
+    # Interpretation: People with high betweeness are the connection between two separate groups. They transfer information between the groups.
     
     betweenness = list(nx.betweenness_centrality(G).values())
 
@@ -89,7 +114,6 @@ def betweenness_centrality_distribution(G: nx.Graph):
 
     print(f"Average Betweenness Centrality: {avg_betweenness}")
     print(f"Max Betweenness Centrality: {max_betweenness}")
-
 
     # Plot distribution
     plt.figure()
@@ -109,5 +133,31 @@ def shortest_path_length_and_plot(largest_cc: nx.Graph):
     
     avg_shortest_path_length = nx.average_shortest_path_length(largest_cc)
 
-    # Print results
     print(f"Average Shortest Path Length: {avg_shortest_path_length}")
+
+    # compute shortest paths between all node pairs
+    lengths = dict(nx.all_pairs_shortest_path_length(largest_cc))
+
+    # flatten distances into a list
+    distance_counts = {}
+    for source in lengths:
+        for target in lengths[source]:
+            if source != target:  # exclude self-loops
+                d = lengths[source][target]
+                distance_counts[d] = distance_counts.get(d, 0) + 1
+
+    # normalize to get probability distribution
+    total_pairs = sum(distance_counts.values())
+    d_vals = sorted(distance_counts.keys())
+    p_vals = [distance_counts[d] / total_pairs for d in d_vals]
+
+    # plot probability distribution
+    plt.figure(figsize=(7, 5))
+    plt.plot(d_vals, p_vals, marker='o', color='red')
+    plt.title("Shortest Path Length Distribution")
+    plt.xlabel("Shortest Path Length $d$")
+    plt.ylabel("Probability $p_d$")
+    plt.axvline(x=np.average(d_vals, weights=p_vals), linestyle='--', color='gray', label='Average ⟨d⟩')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
