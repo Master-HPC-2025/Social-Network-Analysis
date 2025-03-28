@@ -43,10 +43,13 @@ def visualize_network(G, file, layout_type="spring"):
     
     pos = layout_funcs.get(layout_type, nx.spring_layout)(G)
 
-    fig = plt.figure(figsize=(10, 7))
+    fig = plt.figure(figsize=(30, 30))
+    nx.draw_networkx_nodes(G, pos, node_size=50, alpha=0.7)
+    nx.draw_networkx_edges(G, pos, width=0.2, alpha=0.2)
+    plt.axis('off')
     fig.canvas.manager.set_window_title(file.name)
 
-    nx.draw(G, pos, node_color=colors, cmap=plt.get_cmap("tab10"), node_size=50, edge_color="gray", with_labels=False)
+    nx.draw(G, pos, node_color=colors, cmap=plt.get_cmap("tab10"), node_size=50, edge_color="black", with_labels=False)
     plt.suptitle(f"{file.name} - {layout_type.capitalize()} Layout", fontsize=14, fontweight="bold")
     
     # plt.show()
