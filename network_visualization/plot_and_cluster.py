@@ -30,10 +30,10 @@ def visualize_network(G, file, layout_type="spring"):
         for node in community:
             color_map[node] = i
 
-    custom_palette = ["red", "#4A90E2", "orange", "green", "cyan", "yellow", "brown", "lime"]
-    colors = [custom_palette[color_map[node] % len(custom_palette)] for node in G.nodes()]
+    # custom_palette = ["red", "#4A90E2", "orange", "green", "cyan", "yellow", "brown", "lime"]
+    # colors = [custom_palette[color_map[node] % len(custom_palette)] for node in G.nodes()]
 
-    #colors = [color_map[node] for node in G.nodes()]
+    colors = [color_map[node] for node in G.nodes()]
 
     layout_funcs = {
         "spring": nx.spring_layout,
@@ -47,15 +47,13 @@ def visualize_network(G, file, layout_type="spring"):
     
     pos = layout_funcs.get(layout_type, nx.spring_layout)(G)
 
-    fig = plt.figure(figsize=(30, 30))
-    nx.draw_networkx_nodes(G, pos, node_size=50, alpha=0.7)
-    nx.draw_networkx_edges(G, pos, width=0.2, alpha=0.2)
+    fig = plt.figure(figsize=(20, 20))
     plt.axis('off')
     fig.canvas.manager.set_window_title(file.name)
 
-    #, cmap=plt.get_cmap("tab10")
-    nx.draw(G, pos, node_color=colors, node_size=50, edge_color="black", alpha=0.3, with_labels=False)
-    plt.suptitle(f"{file.name} - {layout_type.capitalize()} Layout", fontsize=14, fontweight="bold")
+    nx.draw_networkx_nodes(G, pos, node_color=colors, cmap=plt.get_cmap("tab10"), node_size=50, alpha=0.9)
+    nx.draw_networkx_edges(G, pos, edge_color="black", width=0.3, alpha=0.9)
+    plt.suptitle(f"{file.name} - {layout_type.capitalize()} Layout", fontsize=40, fontweight="bold")
     
     # plt.show()
 
@@ -78,9 +76,9 @@ for file in os.scandir("networks"): # .venv in root dir
     print(file.name)
 
     visualize_network(G, file, layout_type="spring")
-    visualize_network(G, file, layout_type="shell")
-    visualize_network(G, file, layout_type="random")
     visualize_network(G, file, layout_type="spectral")
-    visualize_network(G, file, layout_type="kamada_kawai")
-    visualize_network(G, file, layout_type="fruchterman_reingold")
+    #visualize_network(G, file, layout_type="kamada_kawai")
+    #visualize_network(G, file, layout_type="fruchterman_reingold")
+    #visualize_network(G, file, layout_type="shell")
+    #visualize_network(G, file, layout_type="random")
     print(end="\n\n")
