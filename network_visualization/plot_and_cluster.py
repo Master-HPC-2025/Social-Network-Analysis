@@ -29,7 +29,11 @@ def visualize_network(G, file, layout_type="spring"):
     for i, community in enumerate(communities):
         for node in community:
             color_map[node] = i
-    colors = [color_map[node] for node in G.nodes()]
+
+    custom_palette = ["red", "#4A90E2", "orange", "green", "cyan", "yellow", "brown", "lime"]
+    colors = [custom_palette[color_map[node] % len(custom_palette)] for node in G.nodes()]
+
+    #colors = [color_map[node] for node in G.nodes()]
 
     layout_funcs = {
         "spring": nx.spring_layout,
@@ -49,7 +53,8 @@ def visualize_network(G, file, layout_type="spring"):
     plt.axis('off')
     fig.canvas.manager.set_window_title(file.name)
 
-    nx.draw(G, pos, node_color=colors, cmap=plt.get_cmap("tab10"), node_size=50, edge_color="black", with_labels=False)
+    #, cmap=plt.get_cmap("tab10")
+    nx.draw(G, pos, node_color=colors, node_size=50, edge_color="black", alpha=0.3, with_labels=False)
     plt.suptitle(f"{file.name} - {layout_type.capitalize()} Layout", fontsize=14, fontweight="bold")
     
     # plt.show()
